@@ -18,15 +18,51 @@ from datetime import datetime
 from django.utils.timezone import now
 from django.utils import timezone
 from rest_framework import filters
+from .models import remoteModel
 
+import paramiko
+
+
+class sshClient():
+    
+    def __init__(self) -> None:
+        self.client = paramiko.SSHClient()
+        self.client._policy = paramiko.WarningPolicy()
+        self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+
+    def runCommand(self, remoteDetails, command):
+        self.client.connect(
+            remoteDetails['ip'],
+            remoteDetails['port'],
+            remoteDetails['username'],
+            remoteDetails['password'],
+        )   
+
+        a,b,c = self.client.exec_command(command)
+        
+        b.channel.recv_exit_status()
+
+        for i in b.readlines(): print(i,end='')
+        # for now don't handle the error
+        # for i in c.readlines(): print(i,end='')
+        output = b.read().decode('ascii')
+        self.client.close()
+        return output
+
+
+
+
+mySSHclient = sshClient()
+    
 
 servers = [
     'bijit',
-    'netweb'
+    'soumya'
 ]
 
-details =[
-    {
+details ={
+    'bijit':{
         'name': 'bijit',
         'username':'bijit',
         'ip':'192.168.31.83',
@@ -64,8 +100,8 @@ CPU Usage:    41.4%
         '''
         
     },
-    {
-        'name': 'netweb',
+    'soumya':{
+        'name': 'soumya',
         'username':'satrajit',
         'ip':'192.168.31.88',
         'password':'abc123',
@@ -78,7 +114,7 @@ CPU Usage:    30.7%
 180980 koushik   20   0   16.8g   3.1g  11836 R 835.3  4.9   4456:13 abc.exe
         '''
     }
-]
+}
 
 # Create your views here.
 def detail(request, pk):
@@ -96,7 +132,8 @@ def refresh(request,pk):
     return redirect('detail',pk=pk)
 
 def index(request):
-    return redirect('detail',pk=0)
+    # print(details.keys())
+    return redirect('detail',pk=list(details.keys())[0])
     # return render(request, 'index.html',{
     #     'server':servers,
     #     'data':details[0],

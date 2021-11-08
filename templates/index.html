@@ -105,11 +105,11 @@
 
             {% for s in server %}
 
-            <a href="{% url 'detail' forloop.counter0 %}">
+            <a href="{% url 'detail' s %}">
 
-                {% if selected == forloop.counter0 %}
-                <div class="serverItem card p-1 selected">
-                    {% else %}
+                {% if s == data.name %}
+                    <div class="serverItem card p-1 selected">
+                {% else %}
                     <div class="serverItem card p-1">
                         {% endif %}
 
