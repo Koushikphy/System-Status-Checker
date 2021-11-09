@@ -93,6 +93,7 @@ def refresh(request,rName):
     return redirect('detail',rName=rName)
 
 
+
 def index(request):
     # handle index if no server name is availabale, for now just return frst index
 
