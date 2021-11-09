@@ -19,8 +19,12 @@ from django.utils.timezone import now
 from django.utils import timezone
 from rest_framework import filters
 from .models import remoteModel
-
+from datetime import datetime, timedelta
 import paramiko
+
+from django.forms.models import model_to_dict
+import pytz
+
 
 
 class sshClient():
@@ -31,111 +35,66 @@ class sshClient():
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 
-    def runCommand(self, remoteDetails, command):
+    def runCommand(self, remoteDetails):
+        # print(remoteDetails)
         self.client.connect(
-            remoteDetails['ip'],
-            remoteDetails['port'],
+            remoteDetails['remoteIP'],
+            remoteDetails['remotePORT'],
             remoteDetails['username'],
             remoteDetails['password'],
         )   
 
-        a,b,c = self.client.exec_command(command)
+        a,b,c = self.client.exec_command(remoteDetails['remoteCommand'])
         
         b.channel.recv_exit_status()
 
-        for i in b.readlines(): print(i,end='')
+        # for i in b.readlines(): print(i,end='')
         # for now don't handle the error
-        # for i in c.readlines(): print(i,end='')
+        for i in c.readlines(): print(i,end='')
         output = b.read().decode('ascii')
         self.client.close()
-        return output
 
+        return output.strip()
 
 
 
 mySSHclient = sshClient()
     
 
-servers = [
-    'bijit',
-    'soumya'
-]
+def getServersNames():
+    return [n for n, in remoteModel.objects.values_list('remoteName')]
 
-details ={
-    'bijit':{
-        'name': 'bijit',
-        'username':'bijit',
-        'ip':'192.168.31.83',
-        'password':'abc123',
-        'lastrefreshed': 'bibibibibib',
-        'status':'''
-Memory Usage: 9804/64039MB (15.31%)
-CPU Usage:    41.4%
----------------------------------------------------------------------------
-   PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
-215140 koushik   20   0   18.3g   4.5g  11732 R  1189  7.1   3267:59 abc.exe
-152261 koushik   20   0   16.0g   2.1g  11688 R 100.0  3.4  19163:04 abc.exe
-227551 saikat    20   0 1802964 441748   9300 R 100.0  0.7  21:50.33 molpro.exe
-227287 saikat    20   0 1802976 452060   9300 R  94.4  0.7  21:54.05 molpro.exe
-227378 saikat    20   0 1802968 460088   9296 R  94.4  0.7  21:48.07 molpro.exe
-227466 saikat    20   0 1802968 445276   9296 R  94.4  0.7  21:51.23 molpro.exe
-215140 koushik   20   0   18.3g   4.5g  11732 R  1189  7.1   3267:59 abc.exe
-152261 koushik   20   0   16.0g   2.1g  11688 R 100.0  3.4  19163:04 abc.exe
-227551 saikat    20   0 1802964 441748   9300 R 100.0  0.7  21:50.33 molpro.exe
-227287 saikat    20   0 1802976 452060   9300 R  94.4  0.7  21:54.05 molpro.exe
-227378 saikat    20   0 1802968 460088   9296 R  94.4  0.7  21:48.07 molpro.exe
-227466 saikat    20   0 1802968 445276   9296 R  94.4  0.7  21:51.23 molpro.exe
-215140 koushik   20   0   18.3g   4.5g  11732 R  1189  7.1   3267:59 abc.exe
-152261 koushik   20   0   16.0g   2.1g  11688 R 100.0  3.4  19163:04 abc.exe
-227551 saikat    20   0 1802964 441748   9300 R 100.0  0.7  21:50.33 molpro.exe
-227287 saikat    20   0 1802976 452060   9300 R  94.4  0.7  21:54.05 molpro.exe
-227378 saikat    20   0 1802968 460088   9296 R  94.4  0.7  21:48.07 molpro.exe
-227466 saikat    20   0 1802968 445276   9296 R  94.4  0.7  21:51.23 molpro.exe
-215140 koushik   20   0   18.3g   4.5g  11732 R  1189  7.1   3267:59 abc.exe
-152261 koushik   20   0   16.0g   2.1g  11688 R 100.0  3.4  19163:04 abc.exe
-227551 saikat    20   0 1802964 441748   9300 R 100.0  0.7  21:50.33 molpro.exe
-227287 saikat    20   0 1802976 452060   9300 R  94.4  0.7  21:54.05 molpro.exe
-227378 saikat    20   0 1802968 460088   9296 R  94.4  0.7  21:48.07 molpro.exe
-227466 saikat    20   0 1802968 445276   9296 R  94.4  0.7  21:51.23 molpro.exe
-        '''
-        
-    },
-    'soumya':{
-        'name': 'soumya',
-        'username':'satrajit',
-        'ip':'192.168.31.88',
-        'password':'abc123',
-        'lastrefreshed': 'fhqiofhqw',
-        'status':'''
-Memory Usage: 4427/64039MB (6.91%)
-CPU Usage:    30.7%
----------------------------------------------------------------------------
-   PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
-180980 koushik   20   0   16.8g   3.1g  11836 R 835.3  4.9   4456:13 abc.exe
-        '''
-    }
-}
+
 
 # Create your views here.
 def detail(request, pk):
-    # print(pk)
+    print(request.META.get('REMOTE_ADDR'))
     return render(request, 'index.html',{
-        'server':servers,
-        'data':details[pk],
+        'server':getServersNames(),
+        'data':remoteModel.objects.get(remoteName=pk),
         'selected':pk
     }) 
 
 
 def refresh(request,pk):
-    # do the update
-    # print('redirect',pk)
+    obj = remoteModel.objects.get(remoteName=pk)
+
+    status  = mySSHclient.runCommand(
+        model_to_dict(obj)
+    )
+    obj.remoteStatus = status
+    # obj.lastUpdated = datetime.now(pytz.timezone('Asia/Kolkata') )
+    obj.lastUpdated = datetime.now() + timedelta(minutes=330)
+    # print()
+    # print(datetime.now(pytz.timezone('Asia/Kolkata') ))
+    # print(obj.lastUpdated)
+    # print()
+
+    obj.save()
     return redirect('detail',pk=pk)
 
+
 def index(request):
+    # handle index if no server name is availabale, for now just return frst index
     # print(details.keys())
-    return redirect('detail',pk=list(details.keys())[0])
-    # return render(request, 'index.html',{
-    #     'server':servers,
-    #     'data':details[0],
-    #     'selected':0
-    # })
+    return redirect('detail',pk=getServersNames()[0])
