@@ -8,9 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="{% static  'bootstrap.min.css' %}">
-
-    <title>Job Status Checker</title>
+    <!-- <link rel="stylesheet" href="{% static  'bootstrap.min.css' %}"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>System Status Checker</title>
     <style>
         html,
         body {
@@ -35,7 +36,8 @@
             /* background: rgb(217, 217, 248); */
             width: 15%;
             font-size: 1.5em;
-            background-color: rgb(248, 248, 248);
+            border-right: 2px solid rgb(138, 137, 137);
+            /* background-color: rgb(248, 248, 248); */
         }
 
         #detailPanel {
@@ -47,13 +49,25 @@
         }
 
         .serverItem {
-            border: none !important;
+            border: 1px solid white;
+
+            padding-left: .7em !important;
+            /* margin-bottom: 1px; */
             /* box-shadow: rgb(0 0 0 / 5%) 0px 10px 10px; */
+        }
+
+        .serverItem:hover {
+            border-top: 1px solid blue !important;
+            border-bottom: 1px solid blue !important;
+            text-shadow: 0 0 black;
+            /* transform: scale(1.03); */
+            font-size: 1.53rem;
         }
 
         .selected {
             color: #fff;
             background-color: #0d6efd;
+            border: 1px solid blue !important;
         }
 
         a,
@@ -82,25 +96,29 @@
 
         .update {
             font-style: italic;
-            font-size: .9em;
+            font-size: .8em;
             padding-right: 5px;
             min-width: fit-content;
         }
-        .grid{
+
+        .grid {
             display: grid;
-    grid-template-columns: auto 1fr;
-    grid-column-gap: 1em
-;
+            grid-template-columns: auto 1fr;
+            grid-column-gap: 1em
         }
     </style>
 </head>
 
 <body>
-
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">System Status</a>
+    
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="#" style="font-size: 1.5em; text-shadow: 0 0 black;">System Status</a>
+        <div style="float: right;">
+            <!-- <a href="https://github.com/Koushikphy/Job_Status" target="_blank" title="Source code available in github"><img src="{% static 'github.png' %}" alt="" height="50px"></a> -->
+            <a href="https://github.com/Koushikphy/Job_Status" target="_blank" title="Source code available in github"><img src="https://img.icons8.com/material-outlined/192/000000/github.png" alt="" height="50px"></a>
+        </div>
     </nav>
-    <div id="root" class="card py-2">
+    <div id="root" class="card">
         <div id="sidebar">
 
             {% for s in server %}
@@ -108,9 +126,9 @@
             <a href="{% url 'detail' s %}">
 
                 {% if s == data.remoteName %}
-                    <div class="serverItem card p-1 selected">
-                {% else %}
-                    <div class="serverItem card p-1">
+                <div class="serverItem p-1 selected">
+                    {% else %}
+                    <div class="serverItem p-1">
                         {% endif %}
 
                         {{s}}
@@ -123,12 +141,15 @@
 
 
         <div id="detailPanel" class="px-4">
-            <div style="display: flex; ">
+            <div style="display: flex; border-bottom: 3px solid rgb(207, 207, 207);" class="box">
                 <div class='name'>{{data.remoteName}}</div>
                 <div class="card-body grid">
-                    <div class="info">Username:  </div> <div>{{data.username}}</div>
-                    <div class="info">IP: </div> <div>{{data.remoteIP}}</div>
-                    <div class="info">Password: </div> <div>{{data.password}}</div>
+                    <div class="info">Username: </div>
+                    <div>{{data.username}}</div>
+                    <div class="info">IP: </div>
+                    <div>{{data.remoteIP}}</div>
+                    <div class="info">Password: </div>
+                    <div>{{data.password}}</div>
                 </div>
             </div>
 
@@ -144,7 +165,7 @@
             </div>
 
 
-            <div style="overflow: auto;">
+            <div style="overflow: auto; padding-bottom: 1em;">
 
                 <pre>{{ data.remoteStatus}}</pre>
             </div>
@@ -153,9 +174,18 @@
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="{% static  'jquery.slim.min.js' %}"></script>
+    <!-- <script src="{% static  'jquery.slim.min.js' %}"></script>
     <script src="{% static  'popper.min.js' %}"></script>
-    <script src="{% static  'bootstrap.min.js' %}"></script>
+    <script src="{% static  'bootstrap.min.js' %}"></script> -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+    crossorigin="anonymous"></script>
 </body>
 
 </html>

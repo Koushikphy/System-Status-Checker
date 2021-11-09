@@ -14,12 +14,11 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework import generics
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils.timezone import now
 from django.utils import timezone
 from rest_framework import filters
 from .models import remoteModel
-from datetime import datetime, timedelta
 import paramiko
 
 from django.forms.models import model_to_dict
@@ -56,8 +55,6 @@ class sshClient():
 
         return output.strip()
 
-
-
 mySSHclient = sshClient()
     
 
@@ -67,22 +64,24 @@ def getServersNames():
 
 
 # Create your views here.
-def detail(request, pk):
+def detail(request, rName):
     print(request.META.get('REMOTE_ADDR'))
     return render(request, 'index.html',{
         'server':getServersNames(),
-        'data':remoteModel.objects.get(remoteName=pk),
-        'selected':pk
+        'data':remoteModel.objects.get(remoteName=rName),
+        'selected':rName
     }) 
 
 
-def refresh(request,pk):
-    obj = remoteModel.objects.get(remoteName=pk)
 
-    status  = mySSHclient.runCommand(
+def refresh(request,rName):
+    obj = remoteModel.objects.get(remoteName=rName)
+    stat  = mySSHclient.runCommand(
         model_to_dict(obj)
     )
-    obj.remoteStatus = status
+    obj.remoteStatus = stat
+
+    # be carefull about the datetime timezone issue
     # obj.lastUpdated = datetime.now(pytz.timezone('Asia/Kolkata') )
     obj.lastUpdated = datetime.now() + timedelta(minutes=330)
     # print()
@@ -91,10 +90,10 @@ def refresh(request,pk):
     # print()
 
     obj.save()
-    return redirect('detail',pk=pk)
+    return redirect('detail',rName=rName)
 
 
 def index(request):
     # handle index if no server name is availabale, for now just return frst index
-    # print(details.keys())
-    return redirect('detail',pk=getServersNames()[0])
+
+    return redirect('detail',rName=getServersNames()[0])
