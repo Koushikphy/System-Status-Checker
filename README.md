@@ -11,6 +11,8 @@
 
 <details>
   <summary>TODO</summary>
+
 1. Make request asynchronous.
 2. Continuous update status in chunks.
+
 </details>
