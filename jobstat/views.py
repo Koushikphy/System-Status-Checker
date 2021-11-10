@@ -59,7 +59,7 @@ mySSHclient = sshClient()
     
 
 def getServersNames():
-    return [n for n, in remoteModel.objects.values_list('remoteName')]
+    return [[n.remoteName,n.remoteType=='workstation'] for n in remoteModel.objects.all()]
 
 
 
@@ -97,4 +97,4 @@ def refresh(request,rName):
 def index(request):
     # handle index if no server name is availabale, for now just return frst index
 
-    return redirect('detail',rName=getServersNames()[0])
+    return redirect('detail',rName=getServersNames()[0][0])

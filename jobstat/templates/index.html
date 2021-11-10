@@ -107,6 +107,10 @@
             grid-template-columns: auto 1fr;
             grid-column-gap: 1em
         }
+        .icons{
+            height: 1em;
+            width: auto;
+        }
     </style>
 </head>
 
@@ -124,15 +128,20 @@
 
             {% for s in server %}
 
-            <a href="{% url 'detail' s %}">
+            <a href="{% url 'detail' s.0 %}">
 
-                {% if s == data.remoteName %}
-                <div class="serverItem p-1 selected">
-                    {% else %}
+                {% if s.0 == data.remoteName %}
+                    <div class="serverItem p-1 selected">
+                {% else %}
                     <div class="serverItem p-1">
-                        {% endif %}
+                {% endif %}
 
-                        {{s}}
+                {% if s.1 %}
+                <img src="{% static  'workstation.png' %}" class='icons',title='Workstation', height="24px">
+                {% else %}
+                <img src="{% static  'server.png' %}" class='icons',title='Computer cluster', height="24px">
+                {% endif %}
+                        {{s.0}}
                     </div>
             </a>
 
