@@ -23,8 +23,8 @@ import paramiko
 
 from django.forms.models import model_to_dict
 import pytz
-
-
+import threading
+from time import sleep
 
 class sshClient():
     
@@ -98,3 +98,27 @@ def index(request):
     # handle index if no server name is availabale, for now just return frst index
 
     return redirect('detail',rName=getServersNames()[0][0])
+
+
+def sampleJob():
+    while True:
+        sleep(10*60)
+        print('Update triggered-----')
+
+        # run all the ssh queryies  # experimental
+        for ser in remoteModel.objects.all():
+            stat  = mySSHclient.runCommand(
+                model_to_dict(ser)
+            )
+            ser.remoteStatus = stat
+
+            # be carefull about the datetime timezone issue
+            # obj.lastUpdated = datetime.now(pytz.timezone('Asia/Kolkata') )
+            ser.lastUpdated = datetime.now() + timedelta(minutes=330)
+            # print()
+            # print(datetime.now(pytz.timezone('Asia/Kolkata') ))
+            # print(obj.lastUpdated)
+            # print()
+
+            ser.save()
+threading.Thread(target=sampleJob,daemon=True).start()
