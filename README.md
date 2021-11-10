@@ -8,3 +8,9 @@
 3. From the admin panel (`/admin/`) add your server, ip address, commands to run etc.
 4. A list of predefined commands is already given in the `models.py` and they can be set using server type option.
 5. Now go to home (`/home/`) to check the status of the added systems. Use refresh to get latest status.
+
+<details>
+  <summary>TODO</summary>
+1. Make request asynchronous.
+2. Continuous update status in chunks.
+</details>
