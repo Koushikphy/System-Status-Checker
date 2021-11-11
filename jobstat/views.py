@@ -96,29 +96,37 @@ def refresh(request,rName):
 
 def index(request):
     # handle index if no server name is availabale, for now just return frst index
-
     return redirect('detail',rName=getServersNames()[0][0])
 
 
+# running the job periodically
+# NOTE: one should use djang channels/websockets to run background periodic tasks, but for this 
+# simple job here, we can just a thread
+# WARNING: this thread approach won't work with most production server e.g. gunicorn etc.
 def sampleJob():
     while True:
-        sleep(10*60)
+        sleep(60*30)
         print('Update triggered-----')
+        print('-'*50)
 
         # run all the ssh queryies  # experimental
         for ser in remoteModel.objects.all():
-            stat  = mySSHclient.runCommand(
-                model_to_dict(ser)
-            )
-            ser.remoteStatus = stat
+            print('Updating %s'%ser.remoteName)
+            try:
+                stat  = mySSHclient.runCommand(
+                    model_to_dict(ser)
+                )
+                ser.remoteStatus = stat
 
-            # be carefull about the datetime timezone issue
-            # obj.lastUpdated = datetime.now(pytz.timezone('Asia/Kolkata') )
-            ser.lastUpdated = datetime.now() + timedelta(minutes=330)
-            # print()
-            # print(datetime.now(pytz.timezone('Asia/Kolkata') ))
-            # print(obj.lastUpdated)
-            # print()
+                # be carefull about the datetime timezone issue
+                # obj.lastUpdated = datetime.now(pytz.timezone('Asia/Kolkata') )
+                ser.lastUpdated = datetime.now() + timedelta(minutes=330)
+                # print()
+                # print(datetime.now(pytz.timezone('Asia/Kolkata') ))
+                # print(obj.lastUpdated)
+                # print()
 
-            ser.save()
+                ser.save()
+            except Exception as e:
+                print(ser,e)
 threading.Thread(target=sampleJob,daemon=True).start()
