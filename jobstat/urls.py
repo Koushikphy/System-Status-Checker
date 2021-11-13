@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 from django.conf.urls import url, include
-from rest_framework import routers
 
 
 admin.site.site_header = 'System Status Admin Panel'
