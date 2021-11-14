@@ -1,14 +1,41 @@
-from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from datetime import datetime, timedelta
+from django.shortcuts import render, redirect#, HttpResponse, get_object_or_404
 from django.forms.models import model_to_dict
 from .models import remoteModel
-
+from rest_framework import serializers, viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from datetime import datetime, timedelta
+from time import sleep
 import pytz
 import paramiko
 import threading
-from time import sleep
+
+
+class remoteModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = remoteModel
+        fields = '__all__'
+
+
+class remoteModelViewSets(viewsets.ModelViewSet):
+    queryset = remoteModel.objects.all()
+    serializer_class = remoteModelSerializer
+
+
+@api_view(["GET"])
+def getDeatils(request):
+    servers = remoteModel.objects.all()
+    serilaizer = remoteModelSerializer(servers, many=True)
+    return Response(serilaizer.data)
+
+
+@api_view(["GET"])
+def updateStatus(request, rName):
+    print('Update for %s requested....'%rName)
+    serilaizer = remoteModelSerializer(refreshServerStatus(rName))
+    return Response(serilaizer.data)
+
+
 
 class sshClient():
     
@@ -40,16 +67,31 @@ class sshClient():
         return output.strip()
 
 mySSHclient = sshClient()
-    
+
+
+def refreshServerStatus(rName):
+    obj = remoteModel.objects.get(remoteName=rName)
+
+    stat  = mySSHclient.runCommand(
+        model_to_dict(obj)
+    )
+    obj.remoteStatus = stat
+
+    # WARNING: be carefull about the datetime timezone issue
+    # obj.lastUpdated = datetime.now(pytz.timezone('Asia/Kolkata') )
+
+    obj.lastUpdated = datetime.now() + timedelta(minutes=330)
+    obj.save()
+    return obj
 
 def getServersNames():
     return [[n.remoteName,n.remoteType=='workstation'] for n in remoteModel.objects.all()]
 
 
 
-# Create your views here.
 def detail(request, rName):
-    print(request.META.get('REMOTE_ADDR'))
+    # get details for a single server 
+    # print(request.META.get('REMOTE_ADDR'))
     return render(request, 'index.html',{
         'server':getServersNames(),
         'data':remoteModel.objects.get(remoteName=rName),
@@ -57,23 +99,8 @@ def detail(request, rName):
     }) 
 
 
-
 def refresh(request,rName):
-    obj = remoteModel.objects.get(remoteName=rName)
-    stat  = mySSHclient.runCommand(
-        model_to_dict(obj)
-    )
-    obj.remoteStatus = stat
-
-    # be carefull about the datetime timezone issue
-    # obj.lastUpdated = datetime.now(pytz.timezone('Asia/Kolkata') )
-    obj.lastUpdated = datetime.now() + timedelta(minutes=330)
-    # print()
-    # print(datetime.now(pytz.timezone('Asia/Kolkata') ))
-    # print(obj.lastUpdated)
-    # print()
-
-    obj.save()
+    refreshServerStatus(rName)
     return redirect('detail',rName=rName)
 
 
@@ -83,13 +110,13 @@ def index(request):
     return redirect('detail',rName=getServersNames()[0][0])
 
 
-# running the job periodically
-# NOTE: one should use djang channels/websockets to run background periodic tasks, but for this 
-# simple job here, we can just a thread
-# WARNING: this thread approach won't work with most production server e.g. gunicorn etc.
 def sampleJob():
+    # running the job periodically
+    # NOTE: one should use djang channels/websockets to run background periodic tasks, but for this 
+    # simple job here, we can just a thread
+    # WARNING: this thread approach won't work with most production server e.g. gunicorn etc.
     while True:
-        sleep(60*30)
+        sleep(60*30) # trigger every 30 minutes
         print('Update triggered-----')
         print('-'*50)
 

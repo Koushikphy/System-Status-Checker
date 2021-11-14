@@ -111,6 +111,9 @@
             height: 1em;
             width: auto;
         }
+        .box{
+            display: flex; border-bottom: 3px solid rgb(207, 207, 207);
+        }
     </style>
 </head>
 
@@ -153,7 +156,7 @@
 
 
         <div id="detailPanel" class="px-4">
-            <div style="display: flex; border-bottom: 3px solid rgb(207, 207, 207);" class="box">
+            <div class="box">
                 <div class='name'>{{data.remoteName}}</div>
                 <div class="card-body grid">
                     <div class="info">Username: </div>
@@ -173,7 +176,6 @@
                         &#8635;
                     </div>
                 </a>
-                <!-- <button class="inb">Update</button> -->
             </div>
 
 
@@ -199,5 +201,4 @@
     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
     crossorigin="anonymous"></script>
 </body>
-
 </html>
