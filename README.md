@@ -1,5 +1,5 @@
 # System Status Checker
-### A dashboard like webserver to check system status of multiple PC/Workstation/Cluster in a single place. 
+### A dashboard like webserver built with django to check system status of multiple PC/Workstation/Cluster in a single place. 
 
 
 ## Get Started:

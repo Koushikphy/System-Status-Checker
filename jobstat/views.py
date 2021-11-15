@@ -4,9 +4,8 @@ from .models import remoteModel
 from rest_framework import serializers, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from datetime import datetime, timedelta
+from django.utils.timezone import make_aware, datetime, pytz
 from time import sleep
-import pytz
 import paramiko
 import threading
 
@@ -31,7 +30,7 @@ def getDeatils(request):
 
 @api_view(["GET"])
 def updateStatus(request, rName):
-    print('Update for %s requested....'%rName)
+    print(f'Update for {rName} requested....')
     serilaizer = remoteModelSerializer(refreshServerStatus(rName))
     return Response(serilaizer.data)
 
@@ -70,6 +69,7 @@ mySSHclient = sshClient()
 
 
 def refreshServerStatus(rName):
+    print(f'[{datetime.now():%d-%b-%Y %I:%M:%S %p}] Updating info for {rName}')
     obj = remoteModel.objects.get(remoteName=rName)
 
     stat  = mySSHclient.runCommand(
@@ -79,8 +79,8 @@ def refreshServerStatus(rName):
 
     # WARNING: be carefull about the datetime timezone issue
     # obj.lastUpdated = datetime.now(pytz.timezone('Asia/Kolkata') )
-
-    obj.lastUpdated = datetime.now() + timedelta(minutes=330)
+    # obj.lastUpdated = datetime.now() + timedelta(minutes=330)
+    obj.lastUpdated = make_aware(datetime.now(), pytz.timezone('Asia/Kolkata'))
     obj.save()
     return obj
 
@@ -117,27 +117,11 @@ def sampleJob():
     # WARNING: this thread approach won't work with most production server e.g. gunicorn etc.
     while True:
         sleep(60*30) # trigger every 30 minutes
-        print('Update triggered-----')
-        print('-'*50)
 
         # run all the ssh queryies  # experimental
         for ser in remoteModel.objects.all():
-            print('Updating %s'%ser.remoteName)
             try:
-                stat  = mySSHclient.runCommand(
-                    model_to_dict(ser)
-                )
-                ser.remoteStatus = stat
-
-                # be carefull about the datetime timezone issue
-                # obj.lastUpdated = datetime.now(pytz.timezone('Asia/Kolkata') )
-                ser.lastUpdated = datetime.now() + timedelta(minutes=330)
-                # print()
-                # print(datetime.now(pytz.timezone('Asia/Kolkata') ))
-                # print(obj.lastUpdated)
-                # print()
-
-                ser.save()
+                refreshServerStatus(ser.remoteName)
             except Exception as e:
                 print(ser,e)
 threading.Thread(target=sampleJob,daemon=True).start()
