@@ -37,22 +37,20 @@ def updateStatus(request, rName):
 
 
 class sshClient():
-    
     def __init__(self) -> None:
         self.client = paramiko.SSHClient()
         self.client._policy = paramiko.WarningPolicy()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 
-    def runCommand(self, remoteDetails):
+    def checkStatus(self, remoteDetails:remoteModel)-> str:
         # print(remoteDetails)
         self.client.connect(
-            remoteDetails['remoteIP'],
-            remoteDetails['remotePORT'],
-            remoteDetails['username'],
-            remoteDetails['password'],
+            remoteDetails.remoteIP,
+            remoteDetails.remotePORT,
+            remoteDetails.username,
+            remoteDetails.password,
         )   
-
         a,b,c = self.client.exec_command(remoteDetails['remoteCommand'])
         
         b.channel.recv_exit_status()
@@ -68,13 +66,11 @@ class sshClient():
 mySSHclient = sshClient()
 
 
-def refreshServerStatus(rName):
+def refreshServerStatus(rName)-> None:
     print(f'[{datetime.now():%d-%b-%Y %I:%M:%S %p}] Updating info for {rName}')
     obj = remoteModel.objects.get(remoteName=rName)
 
-    stat  = mySSHclient.runCommand(
-        model_to_dict(obj)
-    )
+    stat  = mySSHclient.checkStatus(obj)
     obj.remoteStatus = stat
 
     # WARNING: be carefull about the datetime timezone issue
@@ -82,7 +78,6 @@ def refreshServerStatus(rName):
     # obj.lastUpdated = datetime.now() + timedelta(minutes=330)
     obj.lastUpdated = make_aware(datetime.now(), pytz.timezone('Asia/Kolkata'))
     obj.save()
-    return obj
 
 def getServersNames():
     return [[n.remoteName,n.remoteType=='workstation'] for n in remoteModel.objects.all()]
