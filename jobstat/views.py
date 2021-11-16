@@ -51,7 +51,7 @@ class sshClient():
             remoteDetails.username,
             remoteDetails.password,
         )   
-        a,b,c = self.client.exec_command(remoteDetails['remoteCommand'])
+        a,b,c = self.client.exec_command(remoteDetails.remoteCommand)
         
         b.channel.recv_exit_status()
 
@@ -61,7 +61,7 @@ class sshClient():
         output = b.read().decode('ascii')
         self.client.close()
 
-        return output.strip()
+        return output#.strip()
 
 mySSHclient = sshClient()
 
