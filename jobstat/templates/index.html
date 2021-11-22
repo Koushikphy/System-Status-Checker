@@ -8,9 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <!-- <link rel="stylesheet" href="{% static  'bootstrap.min.css' %}"> -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static  'css/bootstrap.min.css' %}">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
     <title>System Status Checker</title>
     <style>
         html,
@@ -122,8 +122,8 @@
     <nav class="navbar navbar-light bg-light">
         <a class="navbar-brand" href="#" style="font-size: 1.5em; text-shadow: 0 0 black;">System Status</a>
         <div style="float: right;">
-            <!-- <a href="https://github.com/Koushikphy/Job_Status" target="_blank" title="Source code available in github"><img src="{% static 'github.png' %}" alt="" height="50px"></a> -->
-            <a href="https://github.com/Koushikphy/Job_Status" target="_blank" title="Source code available in github"><img src="https://img.icons8.com/material-outlined/192/000000/github.png" alt="" height="50px"></a>
+            <a href="https://github.com/Koushikphy/Job_Status" target="_blank" title="Source code available in github"><img src="{% static 'img/github.png' %}" alt="" height="50px"></a>
+            <!-- <a href="https://github.com/Koushikphy/Job_Status" target="_blank" title="Source code available in github"><img src="https://img.icons8.com/material-outlined/192/000000/github.png" alt="" height="50px"></a> -->
         </div>
     </nav>
     <div id="root" class="card">
@@ -140,11 +140,11 @@
                 {% endif %}
 
                 {% if s.1 %}
-                <!-- <img src="{% static  'workstation.png' %}" class='icons',title='Workstation', height="24px"> -->
-                <img src="https://img.icons8.com/ios/50/000000/workstation.png" class='icons',title='Workstation', height="24px">
+                <img src="{% static  'img/workstation.png' %}" class='icons',title='Workstation', height="24px">
+                <!-- <img src="https://img.icons8.com/ios/50/000000/workstation.png" class='icons',title='Workstation', height="24px"> -->
                 {% else %}
-                <!-- <img src="{% static  'server.png' %}" class='icons',title='Computer cluster', height="24px"> -->
-                <img src="https://img.icons8.com/wired/50/000000/server.png" class='icons',title='Computer cluster', height="24px">
+                <img src="{% static  'img/server.png' %}" class='icons',title='Computer cluster', height="24px">
+                <!-- <img src="https://img.icons8.com/wired/50/000000/server.png" class='icons',title='Computer cluster', height="24px"> -->
                 {% endif %}
                         {{s.0}}
                     </div>
@@ -188,10 +188,10 @@
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <!-- <script src="{% static  'jquery.slim.min.js' %}"></script> -->
-    <!-- <script src="{% static  'popper.min.js' %}"></script> -->
-    <!-- <script src="{% static  'bootstrap.min.js' %}"></script> -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    <script src="{% static  'js/jquery.slim.min.js' %}"></script>
+    <script src="{% static  'js/popper.min.js' %}"></script>
+    <script src="{% static  'js/bootstrap.min.js' %}"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
     integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
     crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
@@ -199,6 +199,6 @@
     crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-    crossorigin="anonymous"></script>
+    crossorigin="anonymous"></script> -->
 </body>
 </html>
