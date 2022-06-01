@@ -1,3 +1,5 @@
 __pycache__
 *.sqlite3
 nohup.out
+admin
+rest_framework

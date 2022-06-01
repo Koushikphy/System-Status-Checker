@@ -4,7 +4,8 @@ from .models import remoteModel
 from rest_framework import serializers, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from django.utils.timezone import make_aware, datetime, pytz
+from django.utils.timezone import make_aware, datetime
+import pytz
 from time import sleep
 import paramiko
 import threading
@@ -111,7 +112,7 @@ def sampleJob():
     # simple job here, we can just a thread
     # WARNING: this thread approach won't work with most production server e.g. gunicorn etc.
     while True:
-        sleep(60*30) # trigger every 30 minutes
+        sleep(60*60*5) 
 
         # run all the ssh queryies  # experimental
         for ser in remoteModel.objects.all():
