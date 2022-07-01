@@ -1,3 +1,4 @@
+import imp
 from django.shortcuts import render, redirect#, HttpResponse, get_object_or_404
 from django.forms.models import model_to_dict
 from .models import remoteModel
@@ -9,7 +10,7 @@ import pytz
 from time import sleep
 import paramiko
 import threading
-
+from threading import Timer
 
 class remoteModelSerializer(serializers.ModelSerializer):
     class Meta:
@@ -106,18 +107,36 @@ def index(request):
     return redirect('detail',rName=getServersNames()[0][0])
 
 
-def sampleJob():
-    # running the job periodically
-    # NOTE: one should use djang channels/websockets to run background periodic tasks, but for this 
-    # simple job here, we can just a thread
-    # WARNING: this thread approach won't work with most production server e.g. gunicorn etc.
-    while True:
-        sleep(60*60*5) 
+# def sampleJob():
+#     # running the job periodically
+#     # NOTE: one should use djang channels/websockets to run background periodic tasks, but for this 
+#     # simple job here, we can just a thread
+#     # WARNING: this thread approach won't work with most production server e.g. gunicorn etc.
+#     while True:
+#         sleep(60*60*5) 
 
-        # run all the ssh queryies  # experimental
-        for ser in remoteModel.objects.all():
-            try:
-                refreshServerStatus(ser.remoteName)
-            except Exception as e:
-                print(ser,e)
-threading.Thread(target=sampleJob,daemon=True).start()
+#         # run all the ssh queryies  # experimental
+#         for ser in remoteModel.objects.all():
+#             try:
+#                 refreshServerStatus(ser.remoteName)
+#             except Exception as e:
+#                 print(ser,e)
+# threading.Thread(target=sampleJob,daemon=True).start()
+
+
+def refreshJob():
+    # run all the ssh queryies  # experimental
+    for ser in remoteModel.objects.all():
+        try:
+            refreshServerStatus(ser.remoteName)
+        except Exception as e:
+            print(ser,e)
+
+
+class RepeatTimer(Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
+
+
+RepeatTimer(60*60*5, refreshJob).start()
