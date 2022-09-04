@@ -1,5 +1,5 @@
 import imp
-from django.shortcuts import render, redirect#, HttpResponse, get_object_or_404
+from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.forms.models import model_to_dict
 from .models import remoteModel
 from rest_framework import serializers, viewsets
@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.utils.timezone import make_aware, datetime
 import pytz
-from time import sleep
+from time import sleep, time
 import paramiko
 import threading
 from threading import Timer
@@ -52,9 +52,10 @@ class sshClient():
             remoteDetails.remotePORT,
             remoteDetails.username,
             remoteDetails.password,
+            timeout=60
         )   
-        a,b,c = self.client.exec_command(remoteDetails.remoteCommand)
-        
+        a,b,c = self.client.exec_command(remoteDetails.remoteCommand, timeout=60)
+
         b.channel.recv_exit_status()
 
         # for i in b.readlines(): print(i,end='')
@@ -86,14 +87,55 @@ def getServersNames():
 
 
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+
+allowedIpAddress = [
+    '192.168.31.130',
+    '192.168.31.64',
+    '192.168.31.88',
+    '192.168.31.205',
+    '192.168.31.82',
+    '192.168.31.84',
+    '192.168.31.221',
+    '192.168.31.81',
+    '192.168.31.78',
+    '192.168.31.61',
+    '192.168.31.233',
+    '192.168.31.199',
+    '192.168.23.232',
+    '192.168.1.106',
+    '192.168.1.237',
+    ]
+
+
+
 def detail(request, rName):
     # get details for a single server 
     # print(request.META.get('REMOTE_ADDR'))
-    return render(request, 'index.html',{
-        'server':getServersNames(),
-        'data':remoteModel.objects.get(remoteName=rName),
-        'selected':rName
-    }) 
+    print(f"IP address {get_client_ip(request)} -- {rName}")
+    if rName=='sshconfig':
+        with open("/home/koushik/.ssh/config") as f:
+            return HttpResponse(f.read(), content_type='text/plain')
+
+
+    ipAddr = get_client_ip(request)
+    if ipAddr not in allowedIpAddress:
+        print(f"Request from unknown client.")
+        return render(request, 'notauthorised.html')
+    else:
+        return render(request, 'index.html',{
+            'server':getServersNames(),
+            'data':remoteModel.objects.get(remoteName=rName),
+            'selected':rName
+        }) 
 
 
 def refresh(request,rName):
@@ -126,7 +168,11 @@ def index(request):
 
 def refreshJob():
     # run all the ssh queryies  # experimental
-    for ser in remoteModel.objects.all():
+    servers = remoteModel.objects.all()
+    # servers.reverse()
+    # print(servers)
+    for ser in servers:
+        if ser.remoteName=='spb': continue
         try:
             refreshServerStatus(ser.remoteName)
         except Exception as e:
@@ -139,4 +185,4 @@ class RepeatTimer(Timer):
             self.function(*self.args, **self.kwargs)
 
 
-RepeatTimer(60*60*5, refreshJob).start()
+RepeatTimer(60*60*2, refreshJob).start()

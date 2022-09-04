@@ -115,14 +115,8 @@
         .box{
             display: flex; border-bottom: 3px solid rgb(207, 207, 207);
         }
-        #config{
-            position: absolute;
-            bottom: 0;
-            color: blue;
-            font-style: italic;
-            text-decoration: underline;
-            padding-inline:.3em;
-            z-index: 999;
+        #notice{
+            font-size: 2em;
         }
     </style>
 </head>
@@ -142,69 +136,12 @@
             <!-- <a href="https://github.com/Koushikphy/Job_Status" target="_blank" title="Source code available in github"><img src="https://img.icons8.com/material-outlined/192/000000/github.png" alt="" height="50px"></a> -->
         </div>
     </nav>
-    <div id="config">
-        <a href="{% url 'detail' 'sshconfig' %}">Show ssh config</a>
-    </div>
     <div id="root" class="card">
 
 
 
-        <div id="sidebar">
-
-            {% for s in server %}
-
-            <a href="{% url 'detail' s.0 %}">
-
-                {% if s.0 == data.remoteName %}
-                    <div class="serverItem p-1 selected">
-                {% else %}
-                    <div class="serverItem p-1">
-                {% endif %}
-
-                {% if s.1 %}
-                <img src="{% static  'img/workstation.png' %}" class='icons',title='Workstation', height="24px">
-                <!-- <img src="https://img.icons8.com/ios/50/000000/workstation.png" class='icons',title='Workstation', height="24px"> -->
-                {% else %}
-                <img src="{% static  'img/server.png' %}" class='icons',title='Computer cluster', height="24px">
-                <!-- <img src="https://img.icons8.com/wired/50/000000/server.png" class='icons',title='Computer cluster', height="24px"> -->
-                {% endif %}
-                        {{s.0}}
-                    </div>
-            </a>
-
-            {% endfor %}
-        </div>
-
-
-
-        <div id="detailPanel" class="px-4">
-            <div class="box">
-                <div class='name'>{{data.remoteName}}</div>
-                <div class="card-body grid">
-                    <div class="info">Username: </div>
-                    <div>{{data.username}}</div>
-                    <div class="info">IP: </div>
-                    <div>{{data.remoteIP}}</div>
-                    <div class="info">Password: </div>
-                    <div>{{data.password}}</div>
-                </div>
-            </div>
-
-            <div class="py-2 mb-4">
-                <div class="inb status"> Status </div>
-                <div class="info inb update">Last updated on: {{data.lastUpdated}}</div>
-                <a href="{% url 'refresh' selected %}">
-                    <div style="display: inline-block; font-size: 1.4em; font-weight: bolder;">
-                        &#8635;
-                    </div>
-                </a>
-            </div>
-
-
-            <div style="overflow: auto; padding-bottom: 1em;">
-
-                <pre>{{ data.remoteStatus}}</pre>
-            </div>
+        <div id="notice" >
+            Server is down for maintenance
         </div>
     </div>
 
